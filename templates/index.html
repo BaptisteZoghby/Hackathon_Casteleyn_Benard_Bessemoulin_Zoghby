@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Interface</title>
+    <style>
+       
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: linear-gradient(120deg, #89f7fe, #66a6ff);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        /* Panier styles */
+        .shopping-cart {
+            position: fixed;
+            top: 10%;
+            right: 0;
+            width: 18%;
+            height: 70%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            flex-direction: column;
+            padding: 10px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .shopping-cart h2 {
+            text-align: center;
+            font-size: 20px;
+            margin: 10px 0;
+            color: #4e54c8;
+        }
+
+        .cart-items {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+
+        .cart-item button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .cart-item button:hover {
+            background: #e05656;
+        }
+
+        /* Chat container */
+        .chat-container {
+            width: 60%;
+            height: 60%;
+            margin: 10% auto; /* Leaves one-fifth of space vertically */
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .chat-header {
+            padding: 20px;
+            background: #4e54c8;
+            background: linear-gradient(90deg, #4e54c8, #8f94fb);
+            color: white;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 2px solid #ddd;
+        }
+
+        /* Chat messages area */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Message styles */
+        .chat-message {
+            display: flex;
+            align-items: flex-end;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .user-message, .assistant-message {
+            max-width: 70%;
+            padding: 12px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .user-message {
+            background: #4e54c8;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+            box-shadow: 0 4px 8px rgba(78, 84, 200, 0.2);
+        }
+
+        .assistant-message {
+            background: #e6e8f5;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+            box-shadow: 0 4px 8px rgba(230, 232, 245, 0.4);
+        }
+
+        /* Chat input */
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            background: #ffffff;
+            border-top: 2px solid #ddd;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 30px;
+            outline: none;
+            margin-right: 10px;
+            transition: box-shadow 0.3s;
+        }
+        .chat-input button:nth-child(3) {
+            background: #ff6b6b;
+        }
+
+        .chat-input button:nth-child(3):hover {
+            background: #e05656;
+        }
+
+        .chat-input input:focus {
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+            border-color: #4e54c8;
+        }
+
+        .chat-input button {
+            padding: 10px 15px;
+            font-size: 14px;
+            background: #4e54c8;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .chat-input button:nth-child(4) {
+            background: #28a745; /* Couleur verte */
+        }
+
+        .chat-input button:nth-child(4):hover {
+            background: #218838; /* Vert plus foncé au survol */
+        }
+        .chat-input button:hover {
+            background: #373daf;
+        }
+
+        /* Scrollbar styling */
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="shoppingCart" class="shopping-cart">
+        <div style="padding: 10px; font-weight: bold; background: #f7f7f7; border-bottom: 1px solid #ddd;">
+            Mon Panier
+        </div>
+        <div id="cartContent" style="padding: 10px;">
+            <!-- Les articles ajoutés dynamiquement apparaîtront ici -->
+        </div>
+    </div>
+    
+
+    <!-- Chatbox -->
+    <div class="chat-container">
+        <div class="chat-header">
+            Chatbot
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- Les messages apparaîtront ici -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Type your message..." />
+            <button onclick="sendMessage()">Send</button>
+            <button onclick="resetChat()">Reset</button>
+            <button id="addButton" style="display: none;" onclick="addItemToCart()">Add</button>        </div>
+    </div>
+
+    <script >
+        
+        const chatMessages = document.getElementById("chatMessages");
+        const userInput = document.getElementById("userInput");
+        
+        // function addMessage(content, sender) {
+        //     const messageDiv = document.createElement("div");
+        //     messageDiv.classList.add("chat-message", sender === "user" ? "user-message" : "assistant-message");
+        //     messageDiv.textContent = content;
+        //     chatMessages.appendChild(messageDiv);
+        //     chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll vers le bas
+        // }
+        function addMessage(content, sender) {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("chat-message", sender === "user" ? "user-message" : "assistant-message");
+            messageDiv.innerHTML = content; // Utiliser innerHTML pour prendre en charge le HTML
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll vers le bas
+        }
+
+        // Gérer l'envoi du message
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === "") return;
+
+            addMessage(message, "user"); // Ajouter le message de l'utilisateur au chat
+            userInput.value = ""; // Vider l'input
+
+            // Envoyer le message à Flask via fetch
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                
+                // Ajouter la réponse de l'assistant au chat
+                if (data.response) {
+                    addMessage(data.response, "assistant");
+                } else {
+                    addMessage("Error: Could not get response.", "assistant");
+                }
+            } catch (error) {
+                addMessage("Error: Could not reach the server.", "assistant");
+            }
+        }
+
+        async function toggleCart() {
+            const cart = document.getElementById("shoppingCart");
+
+            // Activer/Désactiver l'affichage du panier
+            if (cart.style.display === "none" || cart.style.display === "") {
+                cart.style.display = "block"; // Afficher le panier
+            } else {
+                cart.style.display = "none"; // Masquer le panier
+                return; // Sortir si on le masque
+            }
+        }
+        async function addtoCart(nomProduit,idProduit,prixProduit){
+            // Ajouter un article au panier
+            const cartContent = document.getElementById("cartContent");
+
+            const itemDiv = document.createElement("div");
+            itemDiv.style.borderBottom = "1px solid #ddd";
+            itemDiv.style.padding = "10px";
+            itemDiv.style.display = "flex";
+            itemDiv.style.flexDirection = "column";
+
+            const productName = document.createElement("div");
+            productName.textContent = nomProduit;
+            productName.style.fontWeight = "bold";
+            productName.style.display = "inline-block";
+
+            const productPrice = document.createElement("span");
+            productPrice.textContent = `${prixProduit} €`;
+            productPrice.style.float = "right";
+            productPrice.style.color = "#4e54c8";
+
+            const productId = document.createElement("div");
+            productId.textContent = `ID: ${idProduit}`;
+            productId.style.fontSize = "12px";
+            productId.style.color = "gray";
+            productId.style.marginTop = "5px";
+
+            // Ajouter les éléments dans l'article
+            itemDiv.appendChild(productName);
+            itemDiv.appendChild(productPrice);
+            itemDiv.appendChild(productId);
+
+            // Ajouter l'article au contenu du panier
+            cartContent.appendChild(itemDiv);
+        }
+        async function toggleAddBtn(show) {
+            const addButton = document.getElementById("addButton");
+            if (show) {
+                addButton.style.display = "inline-block"; // Montre le bouton
+            } else {
+                addButton.style.display = "none"; // Cache le bouton
+            }
+        }
+        async function addItemToCart() {
+        try {
+            // Faire une requête au backend Flask pour récupérer les données du produit
+            const response = await fetch("/get_product_data", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            // Vérifier que la réponse est correcte
+            if (!response.ok) {
+                throw new Error("Erreur lors de la récupération des données produit");
+            }
+
+            const data = await response.json();
+
+            // Vérifier que les données du produit sont disponibles
+            if (data && data.name && data.id && data.price) {
+                const { name: nomProduit, id: idProduit, price: prixProduit } = data;
+
+                // Ajouter l'article au panier en appelant addToCart
+                addToCart(nomProduit, idProduit, prixProduit);
+            } else {
+                console.error("Données produit manquantes dans la réponse:", data);
+            }
+        } catch (error) {
+            console.error("Erreur lors de l'appel à addItemToCart:", error);
+        }
+        toggleCart();
+        }
+        
+        // async function addItemToCart_test(){
+        //     addtoCart("Chibre",'123','39');
+        //     toggleCart();
+        // }
+        // toggleAddBtn(true)
+
+        //Function pour reset le modèle
+        async function resetChat() {
+            try {
+            const response = await fetch("/reset", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response.ok) {
+                // Réinitialiser l'affichage des messages dans la boîte de chat
+                chatMessages.innerHTML = ""; 
+                addMessage("Chat reset successfully.", "assistant");
+            } else {
+                addMessage("Error: Could not reset the chat.", "assistant");
+            }
+            } catch (error) {
+                addMessage("Error: Could not reach the server.", "assistant");
+            }
+            }
+
+        userInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+        })
+        toggleAddBtn(true)
+        addMessage("Bonjour ! Je suis là pour vous aider. Vous pouvez me poser des questions sur nos produits, services, et bien plus encore.", "assistant");
+
+
+    </script>
+
+</body>
+</html>
