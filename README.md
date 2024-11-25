@@ -6,7 +6,7 @@ L’objectif de notre projet est de fournir une solution de chatbot, facilement 
 Le retailer peut ainsi proposer à ses clients une expérience de shopping personnalisée et possède une attractivité renforcée grâce à la fonctionnalité de négociation qui est décrite plus loin dans ce document.
 
 
-Lien vers le vidéo de démonstration : 
+Lien vers le vidéo de démonstration : https://www.youtube.com/watch?v=LPwE6BovC5E
 
 
 Fonctionnalités du projet :
